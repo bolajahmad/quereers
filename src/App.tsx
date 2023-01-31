@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { SubsocialContext } from "./subsocial/provider";
-import polkadotjs from "./subsocial/wallets/polkadotjs";
+import { SubsocialService } from "./services";
 import { IpfsContent } from "@subsocial/api/substrate/wrappers";
 import { SpaceData } from "@subsocial/api/types";
 import { CustomNetwork, Mainnet, Testnet } from "./subsocial/config";
@@ -93,9 +93,12 @@ export default function App() {
     // Using the [polkadotjs] property, imported from context hook.
     // This gives you with a set of methods like [getAllAccounts], [logTransaction],
     // [signAndSendTx], etc. These are using Polkadotjs extension library internally.
-    const accounts = await polkadotjs.getAllAccounts();
+    const accounts = await SubsocialService.getAllAccounts();
     if (accounts.length > 0) {
-      await polkadotjs.signAndSendTx(spaceTransaction, accounts[0].address);
+      await SubsocialService.signAndSendTx(
+        spaceTransaction,
+        accounts[0].address
+      );
       alert("API response added in browser console logs.");
     }
   };

@@ -6,11 +6,18 @@ import {
   Button,
   Stack,
   Input,
+  Text,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
+import { IoChevronDownSharp } from "react-icons/io5";
 import styled from "@emotion/styled";
 import React from "react";
 import { Link } from "react-router-dom";
 import { LogoComponent } from "../misc/Logo";
+import { useGetAccount } from "../../utils/hooks";
 
 const BaseLayoutStyles = styled(Container)``;
 
@@ -19,6 +26,10 @@ type ComponentProps = {
 };
 
 export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
+  const { account, isConnected, accounts, updateSelectedAccount } =
+    useGetAccount();
+
+  console.log({ account });
   return (
     <BaseLayoutStyles minW="100vw" px="0" maxW="100vw" height="100vh">
       <Flex direction="column" h="100%">
@@ -51,8 +62,8 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
 
             <Input type="search" maxW="25em" placeholder="Search Quereers" />
 
-            <Box>
-              {false ? (
+            <Flex gap="4" alignItems="center">
+              {isConnected ? (
                 <>
                   <Button
                     background="bg.btn1"
@@ -61,6 +72,34 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
                   >
                     Profile
                   </Button>
+                  <Menu>
+                    <MenuButton
+                      bg="none"
+                      as={Button}
+                      border="1px dashed currentColor"
+                      color="bg.btn1"
+                      fontWeight={600}
+                      py="2"
+                      px="1"
+                      borderRadius={5}
+                      rightIcon={<IoChevronDownSharp />}
+                    >
+                      <Text as="p" whiteSpace="nowrap" w="fit-content">
+                        {account?.name}:&nbsp;{account?.source}
+                      </Text>
+                    </MenuButton>
+                    <MenuList>
+                      {accounts?.map(({ address, source, name }) => (
+                        <MenuItem
+                          key={address}
+                          onClick={() => updateSelectedAccount(address)}
+                        >
+                          <Text>{name ?? "N/A"}</Text>
+                          <Text>{source}</Text>
+                        </MenuItem>
+                      ))}
+                    </MenuList>
+                  </Menu>
                 </>
               ) : (
                 <Button
@@ -71,7 +110,7 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
                   Connect Wallet
                 </Button>
               )}
-            </Box>
+            </Flex>
           </HStack>
         </Stack>
 
