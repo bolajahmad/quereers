@@ -33,7 +33,7 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
   return (
     <BaseLayoutStyles minW="100vw" px="0" maxW="100vw" height="100vh">
       <Flex direction="column" h="100%">
-        <Stack px="40" py="2">
+        <Stack px="40" py="2" maxW="80vw" mx="auto">
           <HStack spacing="12" justifyContent="space-between">
             <LogoComponent />
 

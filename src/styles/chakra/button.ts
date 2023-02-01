@@ -1,12 +1,6 @@
-import { defineStyleConfig } from "@chakra-ui/react";
+import { defineStyleConfig, flexbox } from "@chakra-ui/react";
 
 export const CustomChakraButton = defineStyleConfig({
-  // The styles all button have in common
-  baseStyle: {
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    borderRadius: "base", // <-- border radius is same for all variants and sizes
-  },
   // Two sizes: sm and md
   sizes: {
     sm: {
@@ -27,14 +21,17 @@ export const CustomChakraButton = defineStyleConfig({
       borderColor: "purple.500",
       color: "purple.500",
     },
+    flex_plain: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "flex-start",
+      gap: "4",
+      backgroundColor: "transparent",
+      color: "#707070",
+    },
     solid: {
       bg: "purple.500",
       color: "white",
     },
-  },
-  // The default size and variant values
-  defaultProps: {
-    size: "md",
-    variant: "outline",
   },
 });

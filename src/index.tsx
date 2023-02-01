@@ -18,6 +18,7 @@ const theme = extendTheme({
     },
     white: {
       1: "#fff",
+      7: "#707070",
     },
   },
   fonts: {

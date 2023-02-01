@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { UserAccount } from "../../models/shared";
 import { SubsocialService } from "../../services";
+import { CustomNetwork, Mainnet, Testnet } from "../../subsocial/config";
 
 export const useGetAccount = () => {
   const [accounts, setAccounts] = useState<UserAccount[] | null>(null);
@@ -12,6 +13,12 @@ export const useGetAccount = () => {
     },
     [accounts]
   );
+
+  const getNetworkName = (network: CustomNetwork) => {
+    if (network === Testnet) return "Testnet";
+    if (network === Mainnet) return "Mainnet";
+    return "Custom Network";
+  };
 
   useEffect(() => {
     async function load() {
@@ -38,6 +45,7 @@ export const useGetAccount = () => {
     account,
     accounts,
     isConnected: !!account,
+    getNetworkName,
     updateSelectedAccount: setSelectedAccount,
   };
 };

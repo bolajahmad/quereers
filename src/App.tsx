@@ -11,6 +11,8 @@ import Space from "./components/Space";
 import { BaseLayout } from "./components/layout/Base";
 import { Outlet, RouterProvider } from "react-router-dom";
 import { Router } from "./utils/routes";
+import { AppLayout } from "./components/layout/AppLayout";
+import { Box } from "@chakra-ui/react";
 
 // This is the start of the React app built using Subsocial Starter.
 export default function App() {
@@ -112,8 +114,8 @@ export default function App() {
   };
 
   return (
-    <BaseLayout>
+    <AppLayout>
       <Outlet />
-    </BaseLayout>
+    </AppLayout>
   );
 }
