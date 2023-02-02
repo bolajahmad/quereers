@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useState, useCallback } from "react";
 
 import { SubsocialApi } from "@subsocial/api";
 import { generateCrustAuthToken } from "@subsocial/api/utils/ipfs";
@@ -12,6 +12,8 @@ import {
 } from "./config";
 import { waitReady } from "@polkadot/wasm-crypto";
 import { Buffer } from "buffer";
+import { useGetAccount } from "../utils/hooks";
+import { NetworkType, UserAccount } from "../models/shared";
 
 // @ts-ignore
 window.Buffer = Buffer;
@@ -30,6 +32,10 @@ interface SubsocialContextInterface {
   network: CustomNetwork;
   changeNetwork: (network: CustomNetwork) => void;
   setupCrustIPFS: (mneomic: string) => void;
+  accounts: UserAccount[] | null;
+  updateSelectedAccount: (address?: string) => void;
+  getNetworkName: (network: CustomNetwork) => NetworkType;
+  selectedAccount?: UserAccount;
 }
 
 const setStoredNetwork = (network: CustomNetwork) => {
@@ -72,6 +78,9 @@ export const SubsocialContext = createContext({
   network: getStoredNetwork(),
   changeNetwork: () => {},
   setupCrustIPFS: () => {},
+  accounts: null,
+  getNetworkName: () => "Testnet",
+  updateSelectedAccount: () => {},
 } as SubsocialContextInterface);
 
 export const SubsocialContextProvider = ({
@@ -83,6 +92,8 @@ export const SubsocialContextProvider = ({
   const [network, setNetwork] = useState<CustomNetwork>(
     defaultNetwork ?? getStoredNetwork()
   );
+  const { account, accounts, updateSelectedAccount, getNetworkName } =
+    useGetAccount();
 
   const initialize = useCallback(async () => {
     await waitReady();
@@ -99,10 +110,6 @@ export const SubsocialContextProvider = ({
       });
     }
   }, []);
-
-  // useEffect(() => {
-  //   initialize()
-  // }, [initialize])
 
   const changeNetwork = (customNetwork: CustomNetwork) => {
     setNetwork(customNetwork);
@@ -129,6 +136,10 @@ export const SubsocialContextProvider = ({
         api,
         initialize,
         network,
+        selectedAccount: account,
+        accounts,
+        updateSelectedAccount,
+        getNetworkName,
         changeNetwork,
         setupCrustIPFS,
       }}

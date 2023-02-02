@@ -11,13 +11,15 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { IoChevronDownSharp } from "react-icons/io5";
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { LogoComponent } from "../misc/Logo";
-import { useGetAccount } from "../../utils/hooks";
+import { SubsocialContext } from "../../subsocial/provider";
 
 const BaseLayoutStyles = styled(Container)``;
 
@@ -26,10 +28,15 @@ type ComponentProps = {
 };
 
 export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
-  const { account, isConnected, accounts, updateSelectedAccount } =
-    useGetAccount();
+  const {
+    isReady,
+    initialize,
+    selectedAccount: account,
+    accounts,
+    updateSelectedAccount,
+  } = useContext(SubsocialContext);
 
-  console.log({ account });
+  console.log({ isReady, account });
   return (
     <BaseLayoutStyles minW="100vw" px="0" maxW="100vw" height="100vh">
       <Flex direction="column" h="100%">
@@ -63,7 +70,7 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
             <Input type="search" maxW="25em" placeholder="Search Quereers" />
 
             <Flex gap="4" alignItems="center">
-              {isConnected ? (
+              {isReady ? (
                 <>
                   <Button
                     background="bg.btn1"
@@ -89,13 +96,38 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
                       </Text>
                     </MenuButton>
                     <MenuList>
+                      <MenuItem _hover={{ bgColor: "transparent" }}>
+                        <Grid
+                          w="full"
+                          fontWeight="bolder"
+                          gridTemplateColumns="7em 1fr"
+                          gap="2"
+                        >
+                          <GridItem color="gray.600">Source</GridItem>
+                          <GridItem color="gray.600">Name</GridItem>
+                        </Grid>
+                      </MenuItem>
                       {accounts?.map(({ address, source, name }) => (
                         <MenuItem
                           key={address}
                           onClick={() => updateSelectedAccount(address)}
                         >
-                          <Text>{name ?? "N/A"}</Text>
-                          <Text>{source}</Text>
+                          <Grid w="full" gridTemplateColumns="7em 1fr" gap="2">
+                            <GridItem
+                              whiteSpace="nowrap"
+                              textOverflow="ellipsis"
+                              overflow="hidden"
+                            >
+                              {source}
+                            </GridItem>
+                            <GridItem
+                              whiteSpace="nowrap"
+                              textOverflow="ellipsis"
+                              overflow="hidden"
+                            >
+                              {name ?? "N/A"}
+                            </GridItem>
+                          </Grid>
                         </MenuItem>
                       ))}
                     </MenuList>
@@ -106,6 +138,7 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
                   bgColor="#3D1C00"
                   color="white"
                   _hover={{ bg: "#3D1C00" }}
+                  onClick={() => initialize()}
                 >
                   Connect Wallet
                 </Button>

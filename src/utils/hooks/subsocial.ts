@@ -8,7 +8,7 @@ export const useGetAccount = () => {
   const [account, setAccount] = useState<UserAccount>();
 
   const setSelectedAccount = useCallback(
-    (address: string) => {
+    (address?: string) => {
       setAccount(accounts?.find((account) => account.address === address));
     },
     [accounts]

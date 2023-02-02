@@ -3,3 +3,5 @@ export type UserAccount = {
   name: string;
   source: string;
 };
+
+export type NetworkType = "Testnet" | "Mainnet" | "Custom Network";
