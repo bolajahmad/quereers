@@ -12,6 +12,8 @@ type ComponentProps = {
 export const AppLayout: React.FC<ComponentProps> = ({ children }) => {
   const { spaces, createSpace } = useSpacesData();
 
+  console.log({ spaces });
+
   return (
     <BaseLayout>
       <Box width="100%" mx="auto" maxW="4xl">

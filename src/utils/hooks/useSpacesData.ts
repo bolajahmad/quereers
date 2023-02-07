@@ -1,7 +1,6 @@
-import { SubsocialApi } from "@subsocial/api";
 import { IpfsContent } from "@subsocial/api/substrate/wrappers";
 import { RawSpaceData } from "@subsocial/api/types";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { ISpace } from "../../models/response";
 import { SubsocialService } from "../../services";
 import { SubsocialContext } from "../../subsocial/provider";
@@ -11,39 +10,43 @@ export const useSpacesData = () => {
   const { api, selectedAccount, network, isReady, getNetworkName } =
     useContext(SubsocialContext);
 
-  const fetchSpacesByAddress = async (api: SubsocialApi, address: string) => {
-    // Fetching ids of all the spaces by owner.
-    const spaceIds = await api.blockchain.spaceIdsByOwner(address);
+  const fetchSpacesByAddress = useCallback(async () => {
+    if (api && selectedAccount) {
+      // Fetching ids of all the spaces by owner.
+      const spaceIds = await api.blockchain.spaceIdsByOwner(
+        selectedAccount.address
+      );
 
-    // Fetching space data from all ids.
-    const spacesData = await api.base.findSpaces({ ids: spaceIds });
-    console.log({ spacesData });
+      // Fetching space data from all ids.
+      const spacesData = await api.base.findSpaces({ ids: spaceIds });
+      console.log({ spacesData });
 
-    // const spaces: ISpace[] = Array.from(spacesData).map(
-    //   ({ content, struct }) => {
-    //     console.log({
-    //       id: struct.id.toNumber(),
-    //       title: content?.name ?? "N/A",
-    //       description: content?.about ?? "N/A",
-    //     });
-    //     return {
-    //       id: struct.id.toNumber(),
-    //       title: content?.name ?? "N/A",
-    //       description: content?.about ?? "N/A",
-    //       blockCreated: struct.created.block.toNumber(),
-    //       created: struct.created.time.toNumber(),
-    //       owner: struct.owner.toString(),
-    //       tags: content?.tags ?? [],
-    //       contentCID: struct.content.asIpfs.toString(),
-    //       image: content?.image,
-    //       isHidden: struct.hidden as any as boolean,
-    //       isEdited: struct.edited as any as boolean,
-    //     };
-    //   }
-    // );
-    // console.log({ spaces });
-    setSpaces(spaces?.length ? spaces : null);
-  };
+      const spaces: ISpace[] = Array.from(spacesData).map(
+        ({ content, struct }) => {
+          console.log({
+            id: struct.id.toNumber(),
+            title: content?.name ?? "N/A",
+            description: content?.about ?? "N/A",
+          });
+          return {
+            id: struct.id.toNumber(),
+            title: content?.name ?? "N/A",
+            description: content?.about ?? "N/A",
+            blockCreated: struct.created.block.toNumber(),
+            created: struct.created.time.toNumber(),
+            owner: struct.owner.toString(),
+            tags: content?.tags ?? [],
+            contentCID: struct.content.asIpfs.toString(),
+            image: content?.image,
+            isHidden: struct.hidden as any as boolean,
+            isEdited: struct.edited as any as boolean,
+          };
+        }
+      );
+      console.log({ spaces });
+      setSpaces(spacesData);
+    }
+  }, [api, selectedAccount]);
 
   // Creating a space on Subsocial network.
   const createSpace = async () => {
@@ -91,10 +94,8 @@ export const useSpacesData = () => {
   };
 
   useEffect(() => {
-    if (api && selectedAccount) {
-      fetchSpacesByAddress(api, selectedAccount.address);
-    }
-  }, [api, selectedAccount]);
+    fetchSpacesByAddress();
+  }, [fetchSpacesByAddress]);
 
   return {
     spaces,
