@@ -1,12 +1,11 @@
 import { IpfsContent } from "@subsocial/api/substrate/wrappers";
-import { RawSpaceData } from "@subsocial/api/types";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { ISpace } from "../../models/response";
 import { SubsocialService } from "../../services";
 import { SubsocialContext } from "../../subsocial/provider";
 
 export const useSpacesData = () => {
-  const [spaces, setSpaces] = useState<RawSpaceData[] | null>(null);
+  const [spaces, setSpaces] = useState<ISpace[] | null>(null);
   const { api, selectedAccount, network, isReady, getNetworkName } =
     useContext(SubsocialContext);
 
@@ -44,7 +43,7 @@ export const useSpacesData = () => {
         }
       );
       console.log({ spaces });
-      setSpaces(spacesData);
+      setSpaces(spaces ?? []);
     }
   }, [api, selectedAccount]);
 

@@ -35,14 +35,14 @@ export const AppLayout: React.FC<ComponentProps> = ({ children }) => {
                 </Button>
               </ListItem>
               {spaces
-                ? spaces.splice(0, 7).map(({ struct, content }) => (
-                    <ListItem mt="4" key={struct.id.toString()}>
+                ? spaces.splice(0, 7).map(({ title, id }) => (
+                    <ListItem mt="4" key={id.toString()}>
                       <Button
                         width="full"
                         variant="flex_plain"
                         _hover={{ bg: "#F5F5F5" }}
                       >
-                        {content?.name}
+                        {title}
                       </Button>
                     </ListItem>
                   ))
