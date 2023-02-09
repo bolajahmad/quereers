@@ -3,7 +3,7 @@ import { MdAddCircle } from "react-icons/md";
 import { IoMdLocate } from "react-icons/io";
 import React from "react";
 import { BaseLayout } from "./Base";
-import { useSpacesData } from "../../utils/hooks";
+import { useSpaceProfile, useSpacesData } from "../../utils/hooks";
 
 type ComponentProps = {
   children?: React.ReactNode;
@@ -12,7 +12,7 @@ type ComponentProps = {
 export const AppLayout: React.FC<ComponentProps> = ({ children }) => {
   const { spaces, createSpace } = useSpacesData();
 
-  console.log({ spaces });
+  const { addFollowers } = useSpaceProfile(Number(spaces?.[0]?.id));
 
   return (
     <BaseLayout>
@@ -35,7 +35,7 @@ export const AppLayout: React.FC<ComponentProps> = ({ children }) => {
                 </Button>
               </ListItem>
               {spaces
-                ? spaces.splice(0, 7).map(({ title, id }) => (
+                ? spaces.slice(0, 7).map(({ title, id }) => (
                     <ListItem mt="4" key={id.toString()}>
                       <Button
                         width="full"
@@ -54,6 +54,7 @@ export const AppLayout: React.FC<ComponentProps> = ({ children }) => {
                   _hover={{ bg: "#F5F5F5" }}
                   color="white.7"
                   w="full"
+                  onClick={() => addFollowers()}
                 >
                   <IoMdLocate size={18} fill="#707070" />
                   Discover Spaces

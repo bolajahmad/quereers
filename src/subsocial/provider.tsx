@@ -109,7 +109,7 @@ export const SubsocialContextProvider = ({
         authorization: "Basic " + CRUST_TEST_AUTH_KEY,
       });
     }
-  }, [network]);
+  }, []);
 
   const changeNetwork = (customNetwork: CustomNetwork) => {
     setNetwork(customNetwork);

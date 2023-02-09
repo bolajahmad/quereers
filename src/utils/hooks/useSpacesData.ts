@@ -18,15 +18,9 @@ export const useSpacesData = () => {
 
       // Fetching space data from all ids.
       const spacesData = await api.base.findSpaces({ ids: spaceIds });
-      console.log({ spacesData });
 
       const spaces: ISpace[] = Array.from(spacesData).map(
         ({ content, struct }) => {
-          console.log({
-            id: struct.id.toNumber(),
-            title: content?.name ?? "N/A",
-            description: content?.about ?? "N/A",
-          });
           return {
             id: struct.id.toNumber(),
             title: content?.name ?? "N/A",
@@ -42,7 +36,6 @@ export const useSpacesData = () => {
           };
         }
       );
-      console.log({ spaces });
       setSpaces(spaces ?? []);
     }
   }, [api, selectedAccount]);
@@ -92,6 +85,14 @@ export const useSpacesData = () => {
     alert("API response added in browser console logs.");
   };
 
+  const findSpaceFollowers = async (spaceId: string) => {
+    const substrateApi = await api?.blockchain.api;
+    const spaceFollowers =
+      await substrateApi?.query.spaceFollows.spaceFollowers(spaceId);
+    console.log({ spaceFollowers });
+    return spaceFollowers;
+  };
+
   useEffect(() => {
     fetchSpacesByAddress();
   }, [fetchSpacesByAddress]);
@@ -99,5 +100,6 @@ export const useSpacesData = () => {
   return {
     spaces,
     createSpace,
+    findSpaceFollowers,
   };
 };

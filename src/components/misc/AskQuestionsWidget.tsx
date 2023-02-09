@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { RiQuestionnaireLine, RiEditBoxLine } from "react-icons/ri";
 import React, { useState } from "react";
+import { AskQuestionModal } from "../modals";
 
 export const AskQuestionWisget = () => {
   const [openModal, setOpen] = useState();
@@ -31,16 +32,7 @@ export const AskQuestionWisget = () => {
       </Flex>
 
       <Flex alignItems="center" mt="6">
-        <Button
-          flex="1"
-          gap="4"
-          borderRadius="20px"
-          _hover={{ bg: "#F5F5F5" }}
-          variant="flex_plain"
-        >
-          <RiQuestionnaireLine />
-          Ask
-        </Button>
+        <AskQuestionModal />
 
         <Divider orientation="vertical" colorScheme="gray" size="6" />
 
