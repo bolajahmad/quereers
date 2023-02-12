@@ -1,3 +1,4 @@
+import { decodeAddress } from "@polkadot/util-crypto";
 import { IpfsContent } from "@subsocial/api/substrate/wrappers";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { ISpace } from "../../models/response";
@@ -89,8 +90,7 @@ export const useSpacesData = () => {
     const substrateApi = await api?.blockchain.api;
     const spaceFollowers =
       await substrateApi?.query.spaceFollows.spaceFollowers(spaceId);
-    console.log({ spaceFollowers });
-    return spaceFollowers;
+    return spaceFollowers?.toHuman();
   };
 
   useEffect(() => {

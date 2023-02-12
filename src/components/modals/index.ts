@@ -1,1 +1,1 @@
-export * from "./AskQuestionModal";
+export * from "./questions";
