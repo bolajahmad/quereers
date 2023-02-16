@@ -36,7 +36,7 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
     updateSelectedAccount,
   } = useContext(SubsocialContext);
 
-  console.log({ isReady, account });
+  console.log({ accounts });
   return (
     <BaseLayoutStyles minW="100vw" px="0" maxW="100vw" height="100vh">
       <Flex direction="column" h="100%">

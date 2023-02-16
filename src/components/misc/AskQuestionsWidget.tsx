@@ -6,13 +6,10 @@ import {
   Input,
   SkeletonCircle,
 } from "@chakra-ui/react";
-import { RiQuestionnaireLine, RiEditBoxLine } from "react-icons/ri";
-import React, { useState } from "react";
+import { RiEditBoxLine } from "react-icons/ri";
 import { AskQuestionModal } from "../modals";
 
 export const AskQuestionWisget = () => {
-  const [openModal, setOpen] = useState();
-
   return (
     <Box bg="white" py="3" px="4" border="1px solid #E0E0E0" borderRadius="4px">
       <Flex gap="4" alignItems="center">

@@ -1,11 +1,18 @@
-import { decodeAddress } from "@polkadot/util-crypto";
+import { useToast } from "@chakra-ui/react";
 import { IpfsContent } from "@subsocial/api/substrate/wrappers";
 import { useCallback, useContext, useEffect, useState } from "react";
+import { CreateSpaceRequest } from "../../models/request";
 import { ISpace } from "../../models/response";
 import { SubsocialService } from "../../services";
 import { SubsocialContext } from "../../subsocial/provider";
+import { Web3Storage } from "web3.storage";
+import { Web3StorageApiKey } from "../constants";
+import { createFileFromJSON } from "../helpers";
+import { hexToString } from "@polkadot/util";
+import { flattenSpaceStructs } from "@subsocial/api/subsocial/flatteners";
 
 export const useSpacesData = () => {
+  const toast = useToast();
   const [spaces, setSpaces] = useState<ISpace[] | null>(null);
   const { api, selectedAccount, network, isReady, getNetworkName } =
     useContext(SubsocialContext);
@@ -20,8 +27,11 @@ export const useSpacesData = () => {
       // Fetching space data from all ids.
       const spacesData = await api.base.findSpaces({ ids: spaceIds });
 
+      console.log({ spacesData });
+
       const spaces: ISpace[] = Array.from(spacesData).map(
         ({ content, struct }) => {
+          // console.log({ content: hexToString(JSON.stringify(content)) });
           return {
             id: struct.id.toNumber(),
             title: content?.name ?? "N/A",
@@ -42,8 +52,7 @@ export const useSpacesData = () => {
   }, [api, selectedAccount]);
 
   // Creating a space on Subsocial network.
-  const createSpace = async () => {
-    // Always assure, the [api] is not null using [isReady] property.
+  const createSpace = async (model: CreateSpaceRequest) => {
     if (!isReady) {
       console.log({ message: "Unable to connect to the API." });
       return;
@@ -60,16 +69,19 @@ export const useSpacesData = () => {
       });
       return;
     }
+    let image = "";
+    if (model.image) {
+      image = await api?.ipfs.saveFile(model.image as File);
+    }
+    console.log({ image });
 
-    // To change the IPFS either pass [CustomNetwork] or call [setupCrustIPFS] with
-    // your mnemonic (MAKE SURE TO HIDE MNEOMIC BEFORE UPLOADING TO PUBLIC NETWORK).
-    const cid = await api!.ipfs.saveContent({
-      about:
-        "A subsocial space for debugging and solving Javascript (and maybe Typescript) errors.",
-      image: null,
-      name: "Javascript Ninjas",
-      tags: ["typescript", "javascript", "debugging"],
-    });
+    const data = {
+      about: model.description,
+      image: "",
+      name: model.name,
+      creator: selectedAccount.address,
+    };
+    const cid = await api?.ipfs.saveContent(data);
     console.log({ cid });
     const substrateApi = await api!.blockchain.api;
 
@@ -77,13 +89,15 @@ export const useSpacesData = () => {
       IpfsContent(cid),
       null // Permissions config (optional)
     );
-    console.log({ spaceTransaction });
 
     await SubsocialService.signAndSendTx(
       spaceTransaction,
       selectedAccount.address
     );
-    alert("API response added in browser console logs.");
+    toast({
+      status: "info",
+      title: "API response added in browser console logs.",
+    });
   };
 
   const findSpaceFollowers = async (spaceId: string) => {

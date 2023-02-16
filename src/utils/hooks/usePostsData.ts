@@ -1,23 +1,17 @@
 import { useToast } from "@chakra-ui/react";
 import { IpfsContent } from "@subsocial/api/substrate/wrappers";
-import { useContext } from "react";
-import { CreatePostModel } from "../../models/shared";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { CreatePostModel } from "../../models/request";
+import { PostModel } from "../../models/response";
 import { SubsocialService } from "../../services";
 import { SubsocialContext } from "../../subsocial/provider";
-import { useGetAccount } from "./subsocial";
+import { useSpacesData } from "./useSpacesData";
 
 export const usePostsData = () => {
   const toast = useToast();
-  const { account } = useGetAccount();
-  const { api } = useContext(SubsocialContext);
-
-  const combinePostAndSubmit = (
-    question: string,
-    space: CreatePostModel["space"],
-    tags: string[]
-  ) => {
-    // const
-  };
+  const { api, selectedAccount: account } = useContext(SubsocialContext);
+  const { spaces } = useSpacesData();
+  const [posts, setPosts] = useState<PostModel[]>([]);
 
   const createPost = async (post: CreatePostModel) => {
     if (!api || !account) {
@@ -47,11 +41,63 @@ export const usePostsData = () => {
       { RegularPost: null },
       IpfsContent(cid)
     );
+    console.log({ account });
     await SubsocialService.signAndSendTx(tx, account.address);
   };
 
+  const fetchPosts = useCallback(async () => {
+    if (!spaces || !api) {
+      toast({
+        title: "Space(s) not found",
+        status: "error",
+        duration: 3000,
+      });
+      return;
+    }
+
+    const postIdsBySpacePromise = await Promise.all(
+      spaces.map(async ({ id }) => {
+        return api.blockchain.postIdsBySpaceId(id.toString());
+      })
+    );
+
+    const postsById = await Promise.all(
+      postIdsBySpacePromise.map((postIds) => {
+        return api.base.findPosts({ ids: postIds });
+      })
+    );
+    console.log({ postsById: postsById });
+    let allPosts: PostModel[] = [];
+    postsById.forEach((data) => {
+      allPosts = [
+        ...allPosts,
+        ...data.map(({ content, struct }) => {
+          return {
+            id: struct.id.toNumber(),
+            spaceId: struct.spaceId.toString(),
+            title: content?.title ?? "N/A",
+            owner: struct.owner.toString(),
+            contentCID: struct.content.isIpfs.toString(),
+            upvotes: struct.upvotesCount.toNumber(),
+            downvotes: struct.downvotesCount.toNumber(),
+            blockCreated: struct.created.block.toNumber(),
+            createdAt: struct.created.time.toNumber() / 1000,
+            description: content?.body ?? "",
+            image: content?.image,
+            tags: content?.tags,
+          };
+        }),
+      ];
+    });
+    setPosts(allPosts.flat(1));
+  }, [api, spaces, toast]);
+
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
   return {
     createPost,
-    combinePostAndSubmit,
+    allPosts: posts,
   };
 };

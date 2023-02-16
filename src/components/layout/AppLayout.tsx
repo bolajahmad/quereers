@@ -1,17 +1,16 @@
 import { Box, Flex, List, ListItem, Button } from "@chakra-ui/react";
-import { MdAddCircle } from "react-icons/md";
 import { IoMdLocate } from "react-icons/io";
 import React from "react";
 import { BaseLayout } from "./Base";
 import { useSpaceProfile, useSpacesData } from "../../utils/hooks";
+import { CreateSpaceModal } from "../modals";
 
 type ComponentProps = {
   children?: React.ReactNode;
 };
 
 export const AppLayout: React.FC<ComponentProps> = ({ children }) => {
-  const { spaces, createSpace } = useSpacesData();
-
+  const { spaces } = useSpacesData();
   const { addFollowers } = useSpaceProfile(Number(spaces?.[0]?.id));
 
   return (
@@ -21,18 +20,7 @@ export const AppLayout: React.FC<ComponentProps> = ({ children }) => {
           <Box flex="1" maxW="240px" py="10" px="4">
             <List>
               <ListItem mb="6">
-                <Button
-                  variant="plain_flex"
-                  color="white.7"
-                  bg="#F5F5F5"
-                  w="full"
-                  gap="4"
-                  _hover={{ bg: "#E0E0E0" }}
-                  onClick={() => createSpace()}
-                >
-                  <MdAddCircle size={18} fill="#707070" />
-                  Create Space
-                </Button>
+                <CreateSpaceModal />
               </ListItem>
               {spaces
                 ? spaces.slice(0, 7).map(({ title, id }) => (

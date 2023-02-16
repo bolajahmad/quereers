@@ -4,13 +4,11 @@ import {
   List,
   ListItem,
   Text,
-  Button,
   Box,
   Circle,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
-import { IoAdd } from "react-icons/io5";
 import { ISpace } from "../../models/response";
 
 type AcceptedSearchType =
@@ -32,6 +30,12 @@ export const SearchInput: React.FC<SearchInputProps<AcceptedSearchType>> = ({
 }) => {
   const [query, setQuery] = useState("");
 
+  const onChange = (value: string) => {
+    setQuery(value);
+    // can do this because it's not async yet
+    handleChange(value);
+  };
+
   return (
     <Box position="relative" border="1px solid #707070" borderRadius="4px">
       <Flex alignItems="center" gap="2" px="3" justifyContent="flex-start">
@@ -51,7 +55,7 @@ export const SearchInput: React.FC<SearchInputProps<AcceptedSearchType>> = ({
             boxShadow: "none",
           }}
           outline="none"
-          onChange={({ target }) => setQuery(target.value)}
+          onChange={({ target }) => onChange(target.value)}
         />
       </Flex>
 

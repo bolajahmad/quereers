@@ -9,27 +9,78 @@ import {
   ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { IpfsContent } from "@subsocial/api/substrate/wrappers";
+import React, { useCallback, useContext, useState } from "react";
 import { RiQuestionnaireLine } from "react-icons/ri";
-import { usePostsData, useSpacesData } from "../../../utils/hooks";
+import { CreatePostModel } from "../../../models/request";
+import { SubsocialService } from "../../../services";
+import { SubsocialContext } from "../../../subsocial/provider";
+import { useGetAccount, useSpacesData } from "../../../utils/hooks";
 import { AddQuestionData } from "./AddQuestionData";
 import { QuestionForm } from "./QuestionForm";
 
 export const AskQuestionModal = () => {
   const { spaces } = useSpacesData();
+  const [questionData, setQuestionData] = useState<
+    Partial<Omit<CreatePostModel, "image">> & { image?: string }
+  >();
+  const { api, selectedAccount: account } = useContext(SubsocialContext);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [question, setQuestion] = useState("");
   const [step, setStep] = useState(1);
-  const [tags, setTags] = useState<string[]>();
-  const { combinePostAndSubmit } = usePostsData();
 
-  const saveQuestion = () => {
-    if (!question) {
-      console.log("No question asked!");
+  const combinePostAndSubmit = useCallback(
+    async (data: Partial<CreatePostModel>) => {
+      console.log({ data });
+      let image = "";
+      if (data.image) {
+        image = await api?.ipfs.saveFile(data.image);
+      }
+      setQuestionData({
+        title: data.title,
+        question: data.question,
+        image,
+      });
+      setStep(2);
+    },
+    [api]
+  );
+
+  const submitQuestion = async (data: any) => {
+    console.log({ data });
+    if (!data?.spaces) {
+      console.log("Space not found");
       return;
     }
-    setStep(2);
+
+    const model = {
+      title: data?.title,
+      body: data?.question,
+    };
+    console.log("loading");
+    if (data?.tags && data?.tags.length) {
+      (model as any)["tags"] = data.tags;
+    }
+    if (data?.image && data.image.length) {
+      (model as any)["image"] = data.image;
+    }
+    console.log({ model });
+
+    const cid = await api!.ipfs.saveContent(model);
+    console.log({ cid });
+    const substrateApi = await api!.blockchain.api;
+
+    const space =
+      typeof data.spaces === "number" ? data.spaces : data.spaces[0];
+
+    const tx = substrateApi.tx.posts.createPost(
+      space,
+      { RegularPost: null },
+      IpfsContent(cid)
+    );
+    SubsocialService.signAndSendTx(tx, `${account?.address}`);
   };
+
+  console.log({ questionData });
 
   return (
     <React.Fragment>
@@ -63,7 +114,7 @@ export const AskQuestionModal = () => {
               {step === 1 ? (
                 <QuestionForm
                   handleClose={() => onClose()}
-                  onFormSubmit={() => saveQuestion()}
+                  onFormSubmit={(model) => combinePostAndSubmit(model)}
                 />
               ) : null}
 
@@ -71,6 +122,9 @@ export const AskQuestionModal = () => {
                 <AddQuestionData
                   handleClose={() => setStep(1)}
                   spaces={spaces!}
+                  handleComplete={(model) =>
+                    submitQuestion({ ...questionData, ...model })
+                  }
                 />
               )}
             </Box>
