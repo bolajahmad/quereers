@@ -1,6 +1,7 @@
 {
   "name": "subsocial-comments",
   "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "dependencies": {
     "@chakra-ui/react": "^2.4.9",
