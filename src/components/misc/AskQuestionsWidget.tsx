@@ -6,8 +6,8 @@ import {
   Input,
   SkeletonCircle,
 } from "@chakra-ui/react";
-import { RiQuestionnaireLine, RiEditBoxLine } from "react-icons/ri";
-import React from "react";
+import { RiEditBoxLine } from "react-icons/ri";
+import { AskQuestionModal } from "../modals";
 
 export const AskQuestionWisget = () => {
   return (
@@ -29,16 +29,7 @@ export const AskQuestionWisget = () => {
       </Flex>
 
       <Flex alignItems="center" mt="6">
-        <Button
-          flex="1"
-          gap="4"
-          borderRadius="20px"
-          _hover={{ bg: "#F5F5F5" }}
-          variant="flex_plain"
-        >
-          <RiQuestionnaireLine />
-          Ask
-        </Button>
+        <AskQuestionModal />
 
         <Divider orientation="vertical" colorScheme="gray" size="6" />
 

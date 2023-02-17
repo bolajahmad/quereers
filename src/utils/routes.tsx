@@ -1,9 +1,14 @@
 import { Heading } from "@chakra-ui/react";
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
+import ProfilePage from "../pages/Profile/Profile";
 import { LandingPage } from "../pages";
 
 export const Router = createBrowserRouter([
+  {
+    path: "/profile",
+    element: <ProfilePage />,
+  },
   {
     path: "/",
     element: <App />,

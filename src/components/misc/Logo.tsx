@@ -11,6 +11,7 @@ export const LogoComponent = () => {
         fontWeight={600}
         color="primary.1"
         fontFamily="fancy"
+        _hover={{ textDecor: "none" }}
       >
         Quereers
       </Heading>

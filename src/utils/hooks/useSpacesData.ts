@@ -1,53 +1,53 @@
-import { SubsocialApi } from "@subsocial/api";
+import { useToast } from "@chakra-ui/react";
 import { IpfsContent } from "@subsocial/api/substrate/wrappers";
-import { RawSpaceData } from "@subsocial/api/types";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { CreateSpaceRequest } from "../../models/request";
 import { ISpace } from "../../models/response";
 import { SubsocialService } from "../../services";
 import { SubsocialContext } from "../../subsocial/provider";
 
 export const useSpacesData = () => {
-  const [spaces, setSpaces] = useState<RawSpaceData[] | null>(null);
+  const toast = useToast();
+  const [loadingSpaces, setLoadingSpaces] = useState(false);
+  const [spaces, setSpaces] = useState<ISpace[] | null>(null);
   const { api, selectedAccount, network, isReady, getNetworkName } =
     useContext(SubsocialContext);
 
-  const fetchSpacesByAddress = async (api: SubsocialApi, address: string) => {
-    // Fetching ids of all the spaces by owner.
-    const spaceIds = await api.blockchain.spaceIdsByOwner(address);
+  const fetchSpacesByAddress = useCallback(async () => {
+    if (api && selectedAccount) {
+      setLoadingSpaces(true);
+      // Fetching ids of all the spaces by owner.
+      const spaceIds = await api.blockchain.spaceIdsByOwner(
+        "5EUV2PvX8sC3DzrirBGAKv6cmFTKFs9VwRvRbrdJLRtw4kLt"
+      );
 
-    // Fetching space data from all ids.
-    const spacesData = await api.base.findSpaces({ ids: spaceIds });
-    console.log({ spacesData });
+      // Fetching space data from all ids.
+      const spacesData = await api.base.findSpaces({ ids: spaceIds });
 
-    // const spaces: ISpace[] = Array.from(spacesData).map(
-    //   ({ content, struct }) => {
-    //     console.log({
-    //       id: struct.id.toNumber(),
-    //       title: content?.name ?? "N/A",
-    //       description: content?.about ?? "N/A",
-    //     });
-    //     return {
-    //       id: struct.id.toNumber(),
-    //       title: content?.name ?? "N/A",
-    //       description: content?.about ?? "N/A",
-    //       blockCreated: struct.created.block.toNumber(),
-    //       created: struct.created.time.toNumber(),
-    //       owner: struct.owner.toString(),
-    //       tags: content?.tags ?? [],
-    //       contentCID: struct.content.asIpfs.toString(),
-    //       image: content?.image,
-    //       isHidden: struct.hidden as any as boolean,
-    //       isEdited: struct.edited as any as boolean,
-    //     };
-    //   }
-    // );
-    // console.log({ spaces });
-    setSpaces(spaces?.length ? spaces : null);
-  };
+      const spaces: ISpace[] = Array.from(spacesData).map(
+        ({ content, struct }) => {
+          return {
+            id: struct.id.toNumber(),
+            title: content?.name ?? "N/A",
+            description: content?.about ?? "N/A",
+            blockCreated: struct.created.block.toNumber(),
+            created: struct.created.time.toNumber(),
+            owner: struct.owner.toString(),
+            tags: content?.tags ?? [],
+            contentCID: struct.content.asIpfs.toString(),
+            image: content?.image,
+            isHidden: struct.hidden as any as boolean,
+            isEdited: struct.edited as any as boolean,
+          };
+        }
+      );
+      setSpaces(spaces ?? []);
+      setLoadingSpaces(false);
+    }
+  }, [api, selectedAccount]);
 
   // Creating a space on Subsocial network.
-  const createSpace = async () => {
-    // Always assure, the [api] is not null using [isReady] property.
+  const createSpace = async (model: CreateSpaceRequest) => {
     if (!isReady) {
       console.log({ message: "Unable to connect to the API." });
       return;
@@ -64,40 +64,51 @@ export const useSpacesData = () => {
       });
       return;
     }
+    let image = "";
+    if (model.image) {
+      image = await api?.ipfs.saveFile(model.image as File);
+    }
+    console.log({ image });
 
-    // To change the IPFS either pass [CustomNetwork] or call [setupCrustIPFS] with
-    // your mnemonic (MAKE SURE TO HIDE MNEOMIC BEFORE UPLOADING TO PUBLIC NETWORK).
-    const cid = await api!.ipfs.saveContent({
-      about:
-        "A subsocial space for debugging and solving Javascript (and maybe Typescript) errors.",
-      image: null,
-      name: "Javascript Ninjas",
-      tags: ["typescript", "javascript", "debugging"],
-    });
-    console.log({ cid });
+    const data = {
+      about: model.description,
+      image,
+      name: model.name,
+      creator: selectedAccount.address,
+    };
+    const cid = await api?.ipfs.saveContent(data);
     const substrateApi = await api!.blockchain.api;
 
     const spaceTransaction = substrateApi.tx.spaces.createSpace(
       IpfsContent(cid),
       null // Permissions config (optional)
     );
-    console.log({ spaceTransaction });
 
     await SubsocialService.signAndSendTx(
       spaceTransaction,
-      selectedAccount.address
+      "5EUV2PvX8sC3DzrirBGAKv6cmFTKFs9VwRvRbrdJLRtw4kLt"
     );
-    alert("API response added in browser console logs.");
+    toast({
+      status: "info",
+      title: "API response added in browser console logs.",
+    });
+  };
+
+  const findSpaceFollowers = async (spaceId: string) => {
+    const substrateApi = await api?.blockchain.api;
+    const spaceFollowers =
+      await substrateApi?.query.spaceFollows.spaceFollowers(spaceId);
+    return spaceFollowers?.toHuman();
   };
 
   useEffect(() => {
-    if (api && selectedAccount) {
-      fetchSpacesByAddress(api, selectedAccount.address);
-    }
-  }, [api, selectedAccount]);
+    fetchSpacesByAddress();
+  }, [fetchSpacesByAddress]);
 
   return {
     spaces,
     createSpace,
+    loadingSpaces,
+    findSpaceFollowers,
   };
 };
