@@ -106,7 +106,7 @@ export const CreateSpaceModal = () => {
                   onSubmit={handleSubmit(onSubmit)}
                 >
                   <FormControl>
-                    <FormLabel htmlFor="name">Ask your question.</FormLabel>
+                    <FormLabel htmlFor="name">Space Title</FormLabel>
                     <Input
                       {...register("name")}
                       placeholder="Write your question here"
@@ -122,7 +122,7 @@ export const CreateSpaceModal = () => {
 
                   <FormControl>
                     <FormLabel htmlFor="description">
-                      Brief Description
+                      Space Description
                     </FormLabel>
                     <FormHelperText>
                       Enter information on what members should expect.

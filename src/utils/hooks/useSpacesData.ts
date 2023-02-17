@@ -5,33 +5,27 @@ import { CreateSpaceRequest } from "../../models/request";
 import { ISpace } from "../../models/response";
 import { SubsocialService } from "../../services";
 import { SubsocialContext } from "../../subsocial/provider";
-import { Web3Storage } from "web3.storage";
-import { Web3StorageApiKey } from "../constants";
-import { createFileFromJSON } from "../helpers";
-import { hexToString } from "@polkadot/util";
-import { flattenSpaceStructs } from "@subsocial/api/subsocial/flatteners";
 
 export const useSpacesData = () => {
   const toast = useToast();
+  const [loadingSpaces, setLoadingSpaces] = useState(false);
   const [spaces, setSpaces] = useState<ISpace[] | null>(null);
   const { api, selectedAccount, network, isReady, getNetworkName } =
     useContext(SubsocialContext);
 
   const fetchSpacesByAddress = useCallback(async () => {
     if (api && selectedAccount) {
+      setLoadingSpaces(true);
       // Fetching ids of all the spaces by owner.
       const spaceIds = await api.blockchain.spaceIdsByOwner(
-        selectedAccount.address
+        "5EUV2PvX8sC3DzrirBGAKv6cmFTKFs9VwRvRbrdJLRtw4kLt"
       );
 
       // Fetching space data from all ids.
       const spacesData = await api.base.findSpaces({ ids: spaceIds });
 
-      console.log({ spacesData });
-
       const spaces: ISpace[] = Array.from(spacesData).map(
         ({ content, struct }) => {
-          // console.log({ content: hexToString(JSON.stringify(content)) });
           return {
             id: struct.id.toNumber(),
             title: content?.name ?? "N/A",
@@ -48,6 +42,7 @@ export const useSpacesData = () => {
         }
       );
       setSpaces(spaces ?? []);
+      setLoadingSpaces(false);
     }
   }, [api, selectedAccount]);
 
@@ -77,12 +72,11 @@ export const useSpacesData = () => {
 
     const data = {
       about: model.description,
-      image: "",
+      image,
       name: model.name,
       creator: selectedAccount.address,
     };
     const cid = await api?.ipfs.saveContent(data);
-    console.log({ cid });
     const substrateApi = await api!.blockchain.api;
 
     const spaceTransaction = substrateApi.tx.spaces.createSpace(
@@ -92,7 +86,7 @@ export const useSpacesData = () => {
 
     await SubsocialService.signAndSendTx(
       spaceTransaction,
-      selectedAccount.address
+      "5EUV2PvX8sC3DzrirBGAKv6cmFTKFs9VwRvRbrdJLRtw4kLt"
     );
     toast({
       status: "info",
@@ -114,6 +108,7 @@ export const useSpacesData = () => {
   return {
     spaces,
     createSpace,
+    loadingSpaces,
     findSpaceFollowers,
   };
 };

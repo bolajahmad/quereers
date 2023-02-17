@@ -1,4 +1,12 @@
-import { Box, Button, Circle, Flex, Heading, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Circle,
+  Flex,
+  Heading,
+  Spinner,
+  Text,
+} from "@chakra-ui/react";
 import { usePostsData } from "../../utils/hooks";
 import { AiFillDislike, AiFillLike } from "react-icons/ai";
 import { FiMessageCircle } from "react-icons/fi";
@@ -8,14 +16,23 @@ import { useState } from "react";
 import { PostCommentsSection } from "./PostsCommentSection";
 
 export const ViewQuestionWidget: React.FC = () => {
-  const { allPosts } = usePostsData();
+  const { allPosts, loadingPosts } = usePostsData();
   const [isReplying, setReplying] = useState<string>();
 
   return (
     <>
       {allPosts.length ? (
         allPosts.map((post) => {
-          const { id, spaceId, description, title, image, owner } = post;
+          const {
+            id,
+            spaceId,
+            description,
+            title,
+            image,
+            owner,
+            upvotes,
+            downvotes,
+          } = post;
 
           return (
             <Box key={id}>
@@ -57,20 +74,25 @@ export const ViewQuestionWidget: React.FC = () => {
               </Box> : null} */}
 
                 <Flex gap="2" mt="4">
-                  <Button>
-                    <AiFillLike />
+                  <Button variant="ghost" borderRadius="6">
+                    <AiFillLike /> {upvotes}
                   </Button>
-                  <Button>
-                    <AiFillDislike />
+                  <Button variant="ghost">
+                    <AiFillDislike /> {downvotes}
                   </Button>
-                  <Button onClick={() => setReplying(id.toString())}>
+                  <Button
+                    variant="ghost"
+                    borderRadius="6"
+                    bg={isReplying === id.toString() ? "gray.400" : ""}
+                    onClick={() => setReplying(id.toString())}
+                  >
                     <FiMessageCircle />
                   </Button>
-                  <Button>
+                  <Button variant="ghost" borderRadius="6">
                     <BsShareFill />
                   </Button>
 
-                  <Button>
+                  <Button ml="auto" variant="ghost" borderRadius="6">
                     <SlOptions />
                   </Button>
                 </Flex>
@@ -85,7 +107,15 @@ export const ViewQuestionWidget: React.FC = () => {
           );
         })
       ) : (
-        <Box color="red">Nobody has any question</Box>
+        <Box color="red" textAlign="center">
+          {loadingPosts ? (
+            <Spinner />
+          ) : (
+            <Text fontWeight="bold">
+              There are no questions. Be the first to ask.
+            </Text>
+          )}
+        </Box>
       )}
     </>
   );

@@ -14,6 +14,7 @@ import { useState } from "react";
 import { MdAddCircle } from "react-icons/md";
 import { ISpace } from "../../../models/response";
 import { SearchInput } from "../../forms";
+import { CreateSpaceModal } from "../spaces";
 
 interface Props {
   spaces: ISpace[];
@@ -103,12 +104,7 @@ export const AddQuestionData: React.FC<Props> = ({
               : null}
           </Wrap>
           <SearchInput
-            listFooter={
-              <Button>
-                <MdAddCircle size="18" />
-                Create Space
-              </Button>
-            }
+            listFooter={<CreateSpaceModal />}
             handleChange={filterSpaces}
             onItemClick={({ id, title }: any) => {
               const index = selectedSpaces?.findIndex(

@@ -17,7 +17,7 @@ import {
 import { IoChevronDownSharp } from "react-icons/io5";
 import styled from "@emotion/styled";
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogoComponent } from "../misc/Logo";
 import { SubsocialContext } from "../../subsocial/provider";
 
@@ -28,6 +28,7 @@ type ComponentProps = {
 };
 
 export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
+  const navigate = useNavigate();
   const {
     isReady,
     initialize,
@@ -36,7 +37,6 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
     updateSelectedAccount,
   } = useContext(SubsocialContext);
 
-  console.log({ accounts });
   return (
     <BaseLayoutStyles minW="100vw" px="0" maxW="100vw" height="100vh">
       <Flex direction="column" h="100%">
@@ -45,16 +45,6 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
             <LogoComponent />
 
             <Flex gap="6">
-              <Button
-                variant="outline"
-                as={Link}
-                to="/spaces"
-                borderColor="bg.btn1"
-                _hover={{ background: "#95234b14" }}
-                color="bg.btn1"
-              >
-                View Spaces
-              </Button>
               <Button
                 variant="outline"
                 borderColor="bg.btn1"
@@ -75,6 +65,7 @@ export const BaseLayout: React.FC<ComponentProps> = ({ children }) => {
                   <Button
                     background="bg.btn1"
                     color="white"
+                    onClick={() => navigate("/profile")}
                     _hover={{ bg: "bg.btn1" }}
                   >
                     Profile

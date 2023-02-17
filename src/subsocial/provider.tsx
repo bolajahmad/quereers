@@ -1,4 +1,4 @@
-import React, { createContext, useState, useCallback } from "react";
+import React, { createContext, useState, useCallback, useEffect } from "react";
 
 import { SubsocialApi } from "@subsocial/api";
 import { generateCrustAuthToken } from "@subsocial/api/utils/ipfs";
@@ -30,6 +30,7 @@ interface SubsocialContextInterface {
   isReady: boolean;
   initialize: () => void;
   network: CustomNetwork;
+  isInitializing: boolean;
   changeNetwork: (network: CustomNetwork) => void;
   setupCrustIPFS: (mneomic: string) => void;
   accounts: UserAccount[] | null;
@@ -77,6 +78,7 @@ export const SubsocialContext = createContext({
   initialize: () => {},
   network: getStoredNetwork(),
   changeNetwork: () => {},
+  isInitializing: false,
   setupCrustIPFS: () => {},
   accounts: null,
   getNetworkName: () => "Testnet",
@@ -87,6 +89,7 @@ export const SubsocialContextProvider = ({
   children,
   defaultNetwork,
 }: Props) => {
+  const [isInitializing, setInitializing] = useState(false);
   const [isReady, setisReady] = useState(false);
   const [api, setApi] = useState<SubsocialApi | null>(null);
   const [network, setNetwork] = useState<CustomNetwork>(
@@ -96,6 +99,7 @@ export const SubsocialContextProvider = ({
     useGetAccount();
 
   const initialize = useCallback(async () => {
+    setInitializing(true);
     await waitReady();
     const newApi = await SubsocialApi.create(network);
 
@@ -109,7 +113,12 @@ export const SubsocialContextProvider = ({
         authorization: "Basic " + CRUST_TEST_AUTH_KEY,
       });
     }
-  }, []);
+    setInitializing(false);
+  }, [network]);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   const changeNetwork = (customNetwork: CustomNetwork) => {
     setNetwork(customNetwork);
@@ -135,6 +144,7 @@ export const SubsocialContextProvider = ({
         isReady,
         api,
         initialize,
+        isInitializing,
         network,
         selectedAccount: account,
         accounts,

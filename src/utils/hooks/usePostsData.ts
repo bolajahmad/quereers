@@ -9,6 +9,7 @@ import { useSpacesData } from "./useSpacesData";
 
 export const usePostsData = () => {
   const toast = useToast();
+  const [loadingPosts, setLoadingPosts] = useState(false);
   const { api, selectedAccount: account } = useContext(SubsocialContext);
   const { spaces } = useSpacesData();
   const [posts, setPosts] = useState<PostModel[]>([]);
@@ -42,19 +43,18 @@ export const usePostsData = () => {
       IpfsContent(cid)
     );
     console.log({ account });
-    await SubsocialService.signAndSendTx(tx, account.address);
+    await SubsocialService.signAndSendTx(
+      tx,
+      "5EUV2PvX8sC3DzrirBGAKv6cmFTKFs9VwRvRbrdJLRtw4kLt"
+    );
   };
 
   const fetchPosts = useCallback(async () => {
     if (!spaces || !api) {
-      toast({
-        title: "Space(s) not found",
-        status: "error",
-        duration: 3000,
-      });
       return;
     }
 
+    setLoadingPosts(true);
     const postIdsBySpacePromise = await Promise.all(
       spaces.map(async ({ id }) => {
         return api.blockchain.postIdsBySpaceId(id.toString());
@@ -66,7 +66,6 @@ export const usePostsData = () => {
         return api.base.findPosts({ ids: postIds });
       })
     );
-    console.log({ postsById: postsById });
     let allPosts: PostModel[] = [];
     postsById.forEach((data) => {
       allPosts = [
@@ -90,7 +89,8 @@ export const usePostsData = () => {
       ];
     });
     setPosts(allPosts.flat(1));
-  }, [api, spaces, toast]);
+    setLoadingPosts(false);
+  }, [api, spaces]);
 
   useEffect(() => {
     fetchPosts();
@@ -98,6 +98,7 @@ export const usePostsData = () => {
 
   return {
     createPost,
+    loadingPosts,
     allPosts: posts,
   };
 };
