@@ -43,7 +43,10 @@ MIT
 
 ### Reference Documentation
 
-[Quereers Documentation on Notion]: https://scarlet-zinnia-086.notion.site/Quereers-30605f5ec70740ef95bfe80b3bb4a8d5
+[Project Description Doc] https://www.dropbox.com/scl/fi/4fdhekoq92hdvzft5pxc5/Quereers.paper?dl=0&rlkey=8paeg8ftlb8ymuchqa0f9m3im
 
-[Quereers Video Pitch]: 
+[Quereers Documentation on Notion] https://scarlet-zinnia-086.notion.site/Quereers-30605f5ec70740ef95bfe80b3bb4a8d5
 
+[Live Demo URL] https://quereers.netlify.app/
+
+[Quereers Video Pitch] https://www.loom.com/share/4e10400ab83648e388fa4d9eecd8f78d
