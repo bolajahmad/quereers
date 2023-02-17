@@ -63,7 +63,6 @@ export const AskQuestionModal = () => {
     if (data?.image && data.image.length) {
       (model as any)["image"] = data.image;
     }
-    console.log({ model });
 
     const cid = await api!.ipfs.saveContent(model);
     console.log({ cid });
@@ -77,10 +76,11 @@ export const AskQuestionModal = () => {
       { RegularPost: null },
       IpfsContent(cid)
     );
-    SubsocialService.signAndSendTx(tx, `${account?.address}`);
+    SubsocialService.signAndSendTx(
+      tx,
+      `5EUV2PvX8sC3DzrirBGAKv6cmFTKFs9VwRvRbrdJLRtw4kLt`
+    );
   };
-
-  console.log({ questionData });
 
   return (
     <React.Fragment>

@@ -75,7 +75,14 @@ export const SearchInput: React.FC<SearchInputProps<AcceptedSearchType>> = ({
         >
           <List>
             {searchData?.map((data) => (
-              <ListItem px="3" key={data.id} onClick={() => onItemClick(data)}>
+              <ListItem
+                px="3"
+                key={data.id}
+                onClick={() => {
+                  onItemClick(data);
+                  setQuery("");
+                }}
+              >
                 <Flex gap="4">
                   <Circle bg="bisque" size={12} />
                   <Flex
@@ -85,8 +92,7 @@ export const SearchInput: React.FC<SearchInputProps<AcceptedSearchType>> = ({
                     alignItems="flex-start"
                     justifyContent="center"
                   >
-                    <Text fontWeight="bolder">Space 1</Text>
-                    <Text>10 Members</Text>
+                    <Text fontWeight="bolder">{data.title}</Text>
                   </Flex>
                 </Flex>
               </ListItem>
