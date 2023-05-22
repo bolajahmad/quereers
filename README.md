@@ -48,5 +48,3 @@ MIT
 [Quereers Documentation on Notion] https://scarlet-zinnia-086.notion.site/Quereers-30605f5ec70740ef95bfe80b3bb4a8d5
 
 [Live Demo URL] https://quereers.netlify.app/
-
-[Quereers Video Pitch] https://www.loom.com/share/4e10400ab83648e388fa4d9eecd8f78d
